@@ -1,0 +1,62 @@
+format_version: 10
+pipelines:
+  app-staging:
+    group: deployment
+    materials:
+      git:
+        git: https://github.com/your-org/your-app.git
+        branch: develop
+        auto_update: true
+    environment_variables:
+      ENVIRONMENT: staging
+      DEPLOY_SERVER: staging.yourapp.com
+      DEPLOY_USER: deploy
+      DEPLOY_PATH: /opt/your-app
+    stages:
+      - deploy:
+          jobs:
+            deploy-to-staging:
+              resources:
+                - docker
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - |
+                        echo "Deploying to staging environment"
+                        echo "Environment: $ENVIRONMENT"
+                        echo "Server: $DEPLOY_SERVER"
+
+  app-production:
+    group: deployment
+    materials:
+      upstream:
+        pipeline: app-staging
+        stage: deploy
+      git:
+        git: https://github.com/your-org/your-app.git
+        branch: main
+    environment_variables:
+      ENVIRONMENT: production
+      DEPLOY_SERVER: prod.yourapp.com
+      DEPLOY_USER: deploy
+      DEPLOY_PATH: /opt/your-app
+    stages:
+      - deploy:
+          approval:
+            type: manual
+            allow_only_on_success: true
+          jobs:
+            deploy-to-production:
+              resources:
+                - docker
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - |
+                        echo "Deploying to production environment"
+                        echo "Environment: $ENVIRONMENT"
+                        echo "Server: $DEPLOY_SERVER"

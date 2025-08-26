@@ -1,0 +1,72 @@
+format_version: 10
+pipelines:
+  deploy-app:
+    group: deployment
+    label_template: "${git[:8]}-${COUNT}"
+    materials:
+      git:
+        git: https://github.com/your-org/your-app.git
+        branch: main
+        auto_update: true
+        shallow_clone: false
+    environment_variables:
+      DEPLOY_SERVER: your-server.com
+      DEPLOY_USER: deploy
+      DEPLOY_PATH: /opt/your-app
+      COMPOSE_FILE: docker-compose.yml
+    stages:
+      - build:
+          clean_workspace: true
+          jobs:
+            package:
+              resources:
+                - docker
+              artifacts:
+                - build:
+                    source: dist
+                    destination: build-artifacts
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - |
+                        echo "=== Building Application ==="
+                        echo "Pipeline: $GO_PIPELINE_NAME"
+                        echo "Build: $GO_PIPELINE_COUNTER"
+                        echo "Git Revision: $GO_REVISION_GIT"
+                        
+                        # Add your build commands here
+                        # npm install && npm run build
+                        # docker build -t myapp:$GO_PIPELINE_COUNTER .
+                        
+                        mkdir -p dist
+                        echo "Build completed at $(date)" > dist/build-info.txt
+      
+      - deploy:
+          approval:
+            type: manual
+            allow_only_on_success: true
+          jobs:
+            deploy-to-server:
+              resources:
+                - docker
+              tasks:
+                - fetch:
+                    pipeline: deploy-app
+                    stage: build
+                    job: package
+                    source: build-artifacts
+                    destination: .
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - |
+                        echo "=== Starting Deployment ==="
+                        echo "Target: $DEPLOY_USER@$DEPLOY_SERVER:$DEPLOY_PATH"
+                        
+                        # Copy deployment script from main repository
+                        # ./scripts/deploy.sh
+                        
+                        echo "Deployment completed successfully"

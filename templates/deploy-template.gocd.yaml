@@ -1,0 +1,43 @@
+format_version: 10
+templates:
+  deploy-template:
+    parameters:
+      - APP_NAME
+      - GIT_REPO
+      - GIT_BRANCH: main
+      - DEPLOY_SERVER
+      - DEPLOY_PATH
+    stages:
+      - build:
+          jobs:
+            package:
+              resources:
+                - docker
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - |
+                        echo "Building #{APP_NAME}"
+                        echo "Repository: #{GIT_REPO}"
+                        echo "Branch: #{GIT_BRANCH}"
+      
+      - deploy:
+          approval:
+            type: manual
+          jobs:
+            deploy:
+              resources:
+                - docker
+              environment_variables:
+                DEPLOY_SERVER: "#{DEPLOY_SERVER}"
+                DEPLOY_PATH: "#{DEPLOY_PATH}"
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - |
+                        echo "Deploying #{APP_NAME} to #{DEPLOY_SERVER}"
+                        # ./scripts/deploy.sh

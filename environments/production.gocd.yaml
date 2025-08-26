@@ -1,0 +1,16 @@
+format_version: 10
+environments:
+  production:
+    environment_variables:
+      ENVIRONMENT: production
+      LOG_LEVEL: warn
+      NODE_ENV: production
+    secure_variables:
+      # Use GoCD's encryption for these values
+      DATABASE_PASSWORD: AES:encrypted_password_here
+      API_SECRET_KEY: AES:encrypted_api_key_here
+    pipelines:
+      - app-production
+    agents:
+      # Specify agent UUIDs or use patterns
+      - "*-prod-*"
