@@ -2,6 +2,30 @@
 
 ## Common Issues and Solutions
 
+### Issue: NullPointerException - rootMap is null
+**Error Message:**
+```
+The plugin sent a response that could not be understood by Go. Plugin returned with code '500' and the following response: '{"target_version":1,"environments":[],"pipelines":[],"errors":[{"location":"YAML config plugin","message":"java.lang.NullPointerException: Cannot invoke \"java.util.Map.entrySet()\" because \"rootMap\" is null"}]}'
+```
+
+**Root Cause:**
+A `.gocd.yaml` file contains only comments or has no valid YAML structure. The GoCD plugin tries to parse all files matching `**/*.gocd.yaml` pattern and expects them to have a valid YAML root structure.
+
+**Solution:**
+1. **Check for comment-only files:** Remove or rename files that contain only comments
+2. **Add valid YAML structure:** Ensure all `.gocd.yaml` files have proper format
+3. **Rename documentation files:** Use `.md` extension for documentation
+
+#### Example Fix:
+```bash
+# Rename comment-only files
+mv templates/my-template.gocd.yaml templates/my-template-DOCUMENTATION.md
+
+# Or add valid YAML structure
+echo "format_version: 10" > templates/my-template.gocd.yaml
+echo "# This file is intentionally minimal" >> templates/my-template.gocd.yaml
+```
+
 ### Issue: Templates Error
 **Error Message:**
 ```
