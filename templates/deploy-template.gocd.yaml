@@ -1,43 +1,45 @@
-format_version: 10
-templates:
-  deploy-template:
-    parameters:
-      - APP_NAME
-      - GIT_REPO
-      - GIT_BRANCH: main
-      - DEPLOY_SERVER
-      - DEPLOY_PATH
-    stages:
-      - build:
-          jobs:
-            package:
-              resources:
-                - docker
-              tasks:
-                - exec:
-                    command: /bin/bash
-                    arguments:
-                      - -c
-                      - |
-                        echo "Building #{APP_NAME}"
-                        echo "Repository: #{GIT_REPO}"
-                        echo "Branch: #{GIT_BRANCH}"
-      
-      - deploy:
-          approval:
-            type: manual
-          jobs:
-            deploy:
-              resources:
-                - docker
-              environment_variables:
-                DEPLOY_SERVER: "#{DEPLOY_SERVER}"
-                DEPLOY_PATH: "#{DEPLOY_PATH}"
-              tasks:
-                - exec:
-                    command: /bin/bash
-                    arguments:
-                      - -c
-                      - |
-                        echo "Deploying #{APP_NAME} to #{DEPLOY_SERVER}"
-                        # ./scripts/deploy.sh
+# GoCD YAML Plugin doesn't support standalone templates
+# Templates must be defined within pipeline files
+# This file shows the template structure for reference
+
+# To use templates, define them within a pipeline file like this:
+# 
+# format_version: 10
+# common:
+#   deploy-template: &deploy-template
+#     stages:
+#       - build:
+#           jobs:
+#             package:
+#               resources:
+#                 - docker
+#               tasks:
+#                 - exec:
+#                     command: /bin/bash
+#                     arguments:
+#                       - -c
+#                       - echo "Building application"
+#       - deploy:
+#           approval:
+#             type: manual
+#           jobs:
+#             deploy:
+#               resources:
+#                 - docker
+#               tasks:
+#                 - exec:
+#                     command: /bin/bash
+#                     arguments:
+#                       - -c
+#                       - ./scripts/deploy.sh
+# 
+# pipelines:
+#   my-app:
+#     group: deployment
+#     materials:
+#       git:
+#         git: https://github.com/your-org/your-app.git
+#     <<: *deploy-template
+
+# Alternative: Use YAML anchors and references within the same file
+# See pipelines/template-example.gocd.yaml for a working example

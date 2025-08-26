@@ -1,0 +1,131 @@
+format_version: 10
+
+# Define reusable templates using YAML anchors
+common:
+  # Deploy job template
+  deploy-job: &deploy-job
+    resources:
+      - docker
+    tasks:
+      - exec:
+          command: /bin/bash
+          arguments:
+            - -c
+            - |
+              echo "=== Deployment Started ==="
+              echo "Target: $DEPLOY_USER@$DEPLOY_SERVER:$DEPLOY_PATH"
+              echo "Environment: $ENVIRONMENT"
+              ./scripts/deploy.sh
+
+  # Build job template  
+  build-job: &build-job
+    resources:
+      - docker
+    artifacts:
+      - build:
+          source: dist
+          destination: build-artifacts
+    tasks:
+      - exec:
+          command: /bin/bash
+          arguments:
+            - -c
+            - |
+              echo "=== Building Application ==="
+              echo "Pipeline: $GO_PIPELINE_NAME"
+              echo "Build: $GO_PIPELINE_COUNTER"
+              # Add your build commands here
+              mkdir -p dist
+              echo "Build completed at $(date)" > dist/build-info.txt
+
+  # Standard deployment stage
+  deploy-stage: &deploy-stage
+    approval:
+      type: manual
+      allow_only_on_success: true
+    jobs:
+      deploy-to-server:
+        <<: *deploy-job
+
+  # Standard build stage
+  build-stage: &build-stage
+    clean_workspace: true
+    jobs:
+      package:
+        <<: *build-job
+
+# Pipelines using the templates
+pipelines:
+  # Frontend application using templates
+  frontend-app:
+    group: applications
+    label_template: "frontend-${COUNT}"
+    materials:
+      git:
+        git: https://github.com/your-org/frontend-app.git
+        branch: main
+        auto_update: true
+    environment_variables:
+      DEPLOY_SERVER: web.yourapp.com
+      DEPLOY_USER: deploy
+      DEPLOY_PATH: /opt/frontend
+      ENVIRONMENT: production
+    stages:
+      - build:
+          <<: *build-stage
+      - deploy:
+          <<: *deploy-stage
+
+  # Backend API using templates
+  backend-api:
+    group: applications
+    label_template: "api-${COUNT}"
+    materials:
+      git:
+        git: https://github.com/your-org/backend-api.git
+        branch: main
+        auto_update: true
+    environment_variables:
+      DEPLOY_SERVER: api.yourapp.com
+      DEPLOY_USER: deploy
+      DEPLOY_PATH: /opt/backend
+      ENVIRONMENT: production
+    stages:
+      - build:
+          <<: *build-stage
+      - deploy:
+          <<: *deploy-stage
+
+  # Microservice with custom deployment
+  user-service:
+    group: microservices
+    label_template: "user-svc-${COUNT}"
+    materials:
+      git:
+        git: https://github.com/your-org/user-service.git
+        branch: main
+        auto_update: true
+    environment_variables:
+      DEPLOY_SERVER: services.yourapp.com
+      DEPLOY_USER: deploy
+      DEPLOY_PATH: /opt/user-service
+      ENVIRONMENT: production
+    stages:
+      - build:
+          <<: *build-stage
+      - test:
+          jobs:
+            unit-tests:
+              resources:
+                - docker
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - |
+                        echo "Running unit tests..."
+                        # npm test
+                        # go test ./...
+      - deploy:
+          <<: *deploy-stage
