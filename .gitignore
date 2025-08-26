@@ -1,0 +1,14 @@
+# Temporary files
+*.tmp
+*.log
+.DS_Store
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local configuration
+.env
+local.yaml
