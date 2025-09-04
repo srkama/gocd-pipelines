@@ -32,9 +32,9 @@ common:
             - -c
             - |
               echo "=== Building Application ==="
-              echo "Pipeline: $GO_PIPELINE_NAME"
+              echo "Pipeline: $GO_PIPELINE_NAME" 
               echo "Build: $GO_PIPELINE_COUNTER"
-              # Add your build commands here
+              echo "Add your build commands here"
               mkdir -p dist
               echo "Build completed at $(date)" > dist/build-info.txt
 
@@ -125,7 +125,8 @@ pipelines:
                       - -c
                       - |
                         echo "Running unit tests..."
-                        # npm test
-                        # go test ./...
+                        echo "npm test"
+                        echo "go test ./..."
       - deploy:
           <<: *deploy-stage
+

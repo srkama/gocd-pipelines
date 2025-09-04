@@ -39,9 +39,9 @@ pipelines:
                         echo "Build: $GO_PIPELINE_COUNTER"
                         echo "Git Revision: $GO_REVISION_GIT"
                         
-                        # Add your build commands here
-                        # npm install && npm run build
-                        # docker build -t myapp:$GO_PIPELINE_COUNTER .
+                        echo "Add your build commands here:"
+                        echo "npm install && npm run build"
+                        echo "docker build -t myapp:\$GO_PIPELINE_COUNTER ."
                         
                         mkdir -p dist
                         echo "Build completed at $(date)" > dist/build-info.txt
@@ -73,7 +73,8 @@ pipelines:
                         echo "Build artifacts:"
                         ls -la build-artifacts/
                         
-                        # Use the deployment script
-                        ./scripts/deploy.sh
+                        echo "Use the deployment script:"
+                        echo "./scripts/deploy.sh"
                         
                         echo "=== Deployment Completed ==="
+

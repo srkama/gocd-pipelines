@@ -62,3 +62,4 @@ templates:  # This key is not supported
 - ✅ Use `.md` extension for documentation files
 - ✅ Use descriptive names like `deploy-template-DOCUMENTATION.md`
 - ❌ Avoid `.gocd.yaml` extension unless the file contains valid GoCD configuration
+

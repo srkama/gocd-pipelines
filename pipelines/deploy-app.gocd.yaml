@@ -36,9 +36,9 @@ pipelines:
                         echo "Build: $GO_PIPELINE_COUNTER"
                         echo "Git Revision: $GO_REVISION_GIT"
                         
-                        # Add your build commands here
-                        # npm install && npm run build
-                        # docker build -t myapp:$GO_PIPELINE_COUNTER .
+                        echo "Add your build commands here:"
+                        echo "npm install && npm run build"
+                        echo "docker build -t myapp:\$GO_PIPELINE_COUNTER ."
                         
                         mkdir -p dist
                         echo "Build completed at $(date)" > dist/build-info.txt
@@ -66,7 +66,7 @@ pipelines:
                         echo "=== Starting Deployment ==="
                         echo "Target: $DEPLOY_USER@$DEPLOY_SERVER:$DEPLOY_PATH"
                         
-                        # Copy deployment script from main repository
-                        # ./scripts/deploy.sh
+                        echo "Copy deployment script from main repository"
+                        echo "Example: ./scripts/deploy.sh"
                         
                         echo "Deployment completed successfully"
